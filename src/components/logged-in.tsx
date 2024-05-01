@@ -66,6 +66,9 @@ export default function LoggedIn() {
                 className="file-input file-input-bordered w-full max-w-md"
               />
             </label>
+            <div className="form-control w-full max-w-md my-2">
+                <button className="btn btn-outline">Send Emails</button>
+            </div>
           </form>
         </div>
       </main>
