@@ -37,6 +37,7 @@ export async function fetchEmailTemplateList(): Promise<EmailTemplateModel[]> {
 export async function sendBulkEmail(myFile: File, myTemplate : string){
     const recJSON = await processFile(myFile);
     const contacts: string[] = []
+    console.log(myTemplate)
     recJSON.forEach((contact) => {
         contacts.push(JSON.stringify(contact));
     }); 
