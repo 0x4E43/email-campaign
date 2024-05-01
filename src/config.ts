@@ -1,9 +1,5 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export default{
-    SCOPE :  process.env.SCOPE || "",
-    BASE_URL : process.env.BASE_URL || "",
-    API_KEY : process.env.API_KEY || ""
-}
+export default {
+    SCOPE: import.meta.env.VITE_SCOPE ,
+    BASE_URL: import.meta.env.VITE_BASE_URL,
+    API_KEY: import.meta.env.VITE_API_KEY
+};
