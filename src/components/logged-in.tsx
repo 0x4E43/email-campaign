@@ -1,33 +1,49 @@
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
-import { useState } from "react";
-import { sendBulkEmail } from "../data/data-service";
+import { useEffect, useState } from "react";
+
+import 'react-toastify/dist/ReactToastify.css';
+
+import { sendBulkEmail, fetchEmailTemplateList } from "../data/data-service";
+import Toast from "./toast";
 export default function LoggedIn() {
-  const selectionList: string[] = ["Nimai", "Charan", "Maikap"];
+  const selectionList: string[] = [];
   const { user, logout } = useKindeAuth();
 
+  const [templateList, setTemplateList] = useState<string[]>([]);
   const [template, setTemplate] = useState("");
+  const [success, setSuccess] = useState(0);
+  const [isLoading, setIsLoading] = useState(false)
+  useEffect(() => {
+    fetchEmailTemplateList().then((res) => {
+      const selectList: string[] = [];
+      res.forEach((item) => {
+        selectList.push(item.Name);
+      });
+      setTemplateList(selectList);
+    });
+  }, []);
   const [myFile, setMyFile] = useState<File | null>(null);
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log(event.target.value);
+    console.log("Event", event.target.value);
     setTemplate(event.target.value);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file);
     if (file) {
       setMyFile(file);
     }
   };
 
   const handleSubmit = (event: React.MouseEvent) => {
+    setIsLoading(true)
     event.preventDefault();
 
     if (!myFile) {
       alert("Please select a file.");
       return;
     }
-    if (!template) {
+    if (!templateList) {
       if (selectionList.length > 0) {
         setTemplate(selectionList[0]);
         console.log("template set");
@@ -37,11 +53,21 @@ export default function LoggedIn() {
     }
 
     // Perform your file upload logic here
-    console.log("Template:", selectionList[0]);
+    console.log("Template:", templateList);
     console.log("File:", myFile);
 
     //call APIs
-    sendBulkEmail(myFile, template);
+    sendBulkEmail(myFile, template).then((res) => {
+      console.log("response: ", res);
+
+      if (res.TransactionID) {
+        console.log("SUCCESS");
+        setSuccess(1);
+      } else {
+        setSuccess(2);
+      }
+    });
+    setIsLoading(false)
   };
 
   return (
@@ -95,7 +121,7 @@ export default function LoggedIn() {
                 <option selected disabled>
                   Pick one
                 </option>
-                {selectionList.map((option, index) => (
+                {templateList.map((option, index) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
@@ -129,11 +155,12 @@ export default function LoggedIn() {
                 className="btn btn-outline"
                 onClick={handleSubmit}
               >
-                Send Emails
+                {isLoading ? "Sending Emails..." : "Send Emails"}
               </button>
             </div>
           </form>
         </div>
+        <Toast isSuccess={success} />
       </main>
     </>
   );
