@@ -29,7 +29,7 @@ export async function fetchEmailTemplateList(): Promise<EmailTemplateModel[]> {
         }
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         return data;
     } catch (error) {
         console.error("Error occurred:", error);
@@ -41,14 +41,14 @@ export async function fetchEmailTemplateList(): Promise<EmailTemplateModel[]> {
 export async function sendBulkEmail(myFile: File, myTemplate : string): Promise<EmailAPIResponse>{
     const recJSON = await processFile(myFile);
     const contacts: string[] = []
-    console.log(myTemplate)
-    console.log("Contacts", contacts);
+    // console.log("Contacts", contacts);
+    // console.log(myTemplate)
     recJSON.forEach((contact) => {
         contacts.push(JSON.stringify(contact));
     }); 
     const contentBody = { 
         "From": "admin1@mobile360review.com",
-        "TemplateName": "Hello World",
+        "TemplateName": myTemplate,
     };
     let apiResponse: EmailAPIResponse = {}
     if(recJSON.length > 0){
@@ -67,7 +67,7 @@ export async function sendBulkEmail(myFile: File, myTemplate : string): Promise<
                 body: JSON.stringify(reqBody)
             });
     
-            console.log("Response", response)
+            // console.log("Response", response)
             if (!response.ok) {
                 throw new Error(`Failed to fetch email template list: ${response.statusText}`);
             }
@@ -76,7 +76,7 @@ export async function sendBulkEmail(myFile: File, myTemplate : string): Promise<
                 MessageID: data.MessageID,
                 TransactionID: data.TransactionID
             }
-            console.log(apiResponse)
+            // console.log(apiResponse)
             return apiResponse;
         } catch (error) {
             console.error("Error occurred:", error);
@@ -93,15 +93,22 @@ export async function processFile(myFile: File): Promise<{ Email: string }[]>{
         fileReader.onload = (event: ProgressEvent<FileReader>) => {
             if (event.target?.result) {
                 const fileContent = event.target.result.toString();
-                console.log("File Content: " + fileContent.split(","));
-                fileContent.split(",").forEach((email) => {
-                    emailList.push(email);
-                });
+                // console.log("File Content: " + fileContent.split(","));
+                if(fileContent.match("\r")){
+                    fileContent.split("\r").forEach((email) => {
+                        emailList.push(email);
+                    });
+                }else{
+                    fileContent.split(",").forEach((email) => {
+                        emailList.push(email);
+                    });
+                }
+            
                 const emailObjects = emailList.map((email) => ({ Email: email.replace('\n', '') }));
-                console.log(emailObjects);
+                // console.log("Email Object" + emailList);
                 resolve(emailObjects);
             } else {
-                console.log("Failed to read file");
+                // console.log("Failed to read file");
                 reject(new Error("Failed to read file"));
             }
         };

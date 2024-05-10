@@ -20,11 +20,14 @@ export default function LoggedIn() {
         selectList.push(item.Name);
       });
       setTemplateList(selectList);
+      if(selectList.length > 0){
+        setTemplate(selectList[0])
+      }
     });
   }, []);
   const [myFile, setMyFile] = useState<File | null>(null);
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("Event", event.target.value);
+    // console.log("Event", event.target.value);
     setTemplate(event.target.value);
   };
 
@@ -46,22 +49,22 @@ export default function LoggedIn() {
     if (!templateList) {
       if (selectionList.length > 0) {
         setTemplate(selectionList[0]);
-        console.log("template set");
+        // console.log("template set");
       } else {
         alert("Please create template in elastic email account");
       }
     }
-
     // Perform your file upload logic here
-    console.log("Template:", templateList);
-    console.log("File:", myFile);
+    // console.log("Template:", template);
+    // console.log("File:", myFile);
+
 
     //call APIs
     sendBulkEmail(myFile, template).then((res) => {
-      console.log("response: ", res);
+      // console.log("response: ", res);
 
       if (res.TransactionID) {
-        console.log("SUCCESS");
+        // console.log("SUCCESS");
         setSuccess(1);
       } else {
         setSuccess(2);
@@ -144,7 +147,7 @@ export default function LoggedIn() {
               </div>
               <input
                 type="file"
-                accept=".txt"
+                accept=".txt,.csv"
                 className="file-input file-input-bordered w-full max-w-md"
                 onChange={handleFileUpload}
               />
